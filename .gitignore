@@ -1,4 +1,6 @@
 results/
 work/
+data/
+.nextflow*
 .nextflow.log*
 .nextflow.history
