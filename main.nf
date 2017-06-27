@@ -90,7 +90,6 @@ process calculate_seqs {
             max++ 
         }   
     }   
-    println "max = $max"
     
     // Define linear function for scale
     number_seqs_per_alignment = []
@@ -107,10 +106,22 @@ process calculate_seqs {
 
 }
 
+
+
+def transform = { 
+
+          def result = []
+          def name = it[0]
+          it[1].each { result << [name, it] }
+          return result
+ }
+
+
 seqNumbers
-    .flatMap { name = it[0]; return it[1] }
-    .map { item -> [name, item] }
+    .flatMap(transform)
+    .view()
     .set {seqNumbersFlat}
+
 
 seqsAndRefs
     .cross(seqNumbersFlat)
@@ -146,7 +157,6 @@ process generate_sequence_sets {
     """
 }
 
-
 process generate_alignments {
     container "cbcrg/benchfam_large_scale"
     tag "${datasetID}_${size}_${rep}"
@@ -155,7 +165,7 @@ process generate_alignments {
     input:
         set val(datasetID), val(size), val(rep), file ("${size}.${rep}.fa") from sequenceSets       
  
-    output:
+   output:
         set val(datasetID), val(size), val(rep), file ("${size}.${rep}.afa") into completeAlignments
     
     script:
@@ -226,15 +236,15 @@ process evaluate_alignments {
 }
 
 spScores
-    .collectFile(name:"spScores.csv", sort:{ it[0] }, newLine:true, storeDir: params.output ) { 
+    .collectFile(name:"spScores.csv", sort:{ it[0] }, newLine:true, storeDir: "$params.output" ) { 
         it[0]+"\t"+it[1]+"\t"+it[2].text }
 
 tcScores
-    .collectFile(name:"tcScores.csv", sort:{ it[0] }, newLine:true, storeDir: params.output ) {
+    .collectFile(name:"tcScores.csv", sort:{ it[0] }, newLine:true, storeDir: "$params.output" ) {
         it[0]+"\t"+it[1]+"\t"+it[2].text }
 
 colScores
-    .collectFile(name:"colScores.csv", sort:{ it[0] }, newLine:true, storeDir: params.output ) {
+    .collectFile(name:"colScores.csv", sort:{ it[0] }, newLine:true, storeDir: "$params.output" ) {
         it[0]+"\t"+it[1]+"\t"+it[2].text }
 
 /*

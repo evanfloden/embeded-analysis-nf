@@ -107,4 +107,36 @@
 2017-06-23 16:25:47	36.5s	trusting_hawking	ERR	7b6d98b01967a85d21df0767f55a5f69	09f63782-465d-4232-91d3-54cbc2c1facc	nextflow run main.nf -profile crg
 2017-06-23 16:26:42	36.4s	lonely_visvesvaraya	ERR	75a016177fde4df7cf02c6311fd1c109	bf8f87b4-0bbf-4bbd-bb54-2ef37405fcf7	nextflow run main.nf -profile crg
 2017-06-23 16:28:24	3m 32s	dreamy_blackwell	OK	75a016177fde4df7cf02c6311fd1c109	dbe5ac98-91bb-4ab8-b7a4-c603f156d806	nextflow run main.nf -profile crg
-2017-06-23 16:59:13	-	focused_booth	-	bec6a91ce40d753ba268cec1cc0766d9	c8073e88-c6b3-471f-ad48-f4202dbf6d0f	nextflow run main.nf -profile crg --ref=data/ref/*.ref --seqs=data/seqs/*.fa
+2017-06-23 16:59:13	1d 7h 8m 30s	focused_booth	ERR	bec6a91ce40d753ba268cec1cc0766d9	c8073e88-c6b3-471f-ad48-f4202dbf6d0f	nextflow run main.nf -profile crg --ref=data/ref/*.ref --seqs=data/seqs/*.fa
+2017-06-25 12:09:36	29.6s	prickly_archimedes	ERR	bec6a91ce40d753ba268cec1cc0766d9	c8073e88-c6b3-471f-ad48-f4202dbf6d0f	nextflow run main.nf -profile crg --ref=data/ref/*.ref --seqs=data/seqs/*.fa -resume
+2017-06-25 12:10:14	7h 12m 37s	trusting_kilby	OK	bec6a91ce40d753ba268cec1cc0766d9	c8073e88-c6b3-471f-ad48-f4202dbf6d0f	nextflow run main.nf -profile crg --ref=data/ref/*.ref --seqs=data/seqs/*.fa -resume -bg
+2017-06-26 12:29:43	11m 32s	high_blackwell	OK	bec6a91ce40d753ba268cec1cc0766d9	d1d8670e-9c7d-4c52-9346-bc1c0671318f	nextflow run main.nf -profile crg --ref=data/ref/aadh.ref --seqs=data/seqs/aadh.fa -bg
+2017-06-26 17:48:39	3h 16m 27s	prickly_turing	OK	e0cac54159c2a11ef4d373b011ba034a	0005a01d-5022-4192-9020-cd14354e0289	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa -bg
+2017-06-26 23:10:07	2.4s	backstabbing_wright	OK	c32b8c6f498cb8acf43bedd41a8fc579	2bf5c70c-d2a9-492a-953f-87c85f1d82a2	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:37:03	2.1s	adoring_jang	OK	c32b8c6f498cb8acf43bedd41a8fc579	83c17add-bf2b-434a-be51-947eb797b28a	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:37:44	2s	suspicious_volhard	OK	c32b8c6f498cb8acf43bedd41a8fc579	8cb1e6da-c928-4e83-948e-4f1b21c3f22a	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:39:55	2.8s	ecstatic_joliot	OK	07b25a4669726ce2ac9c8058307ac792	7a5a6877-f915-40c1-b146-4a7405652094	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:40:17	1.8s	agitated_kowalevski	OK	07b25a4669726ce2ac9c8058307ac792	38ba34ca-0cdb-43b8-ab56-56e71f0a28e0	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:40:23	1.9s	tender_perlman	OK	07b25a4669726ce2ac9c8058307ac792	95058bfd-73a6-417e-adfa-de300c20c850	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:40:32	1.2s	amazing_torvalds	OK	07b25a4669726ce2ac9c8058307ac792	4b3bb8ee-a6dc-4229-9989-7f6527c6924f	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:40:48	1.2s	drunk_hopper	OK	07b25a4669726ce2ac9c8058307ac792	16cb2722-e8bd-4cfe-9eff-a69defd4bd0f	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:41:06	1.9s	suspicious_visvesvaraya	OK	07b25a4669726ce2ac9c8058307ac792	d01ff0b6-e442-4159-896c-453a95827558	nextflow run main.nf -profile crg --ref=data/ref2/s*.ref --seqs=data/seqs2/s*.fa
+2017-06-27 12:41:39	1.5s	silly_murdock	OK	07b25a4669726ce2ac9c8058307ac792	14ecb66b-ea17-499b-9455-af393fb15c53	nextflow run main.nf -profile crg --ref=data/ref2/s*.ref --seqs=data/seqs2/s*.fa
+2017-06-27 12:41:51	1.7s	awesome_payne	OK	07b25a4669726ce2ac9c8058307ac792	5d12a4ab-3d00-4b13-a72e-8663e3bc6276	nextflow run main.nf -profile crg --ref=data/ref2/s*.ref --seqs=data/seqs2/s*.fa
+2017-06-27 12:41:56	1.9s	mad_dijkstra	OK	07b25a4669726ce2ac9c8058307ac792	1c9049e9-99bc-4bcc-82e7-f37462072013	nextflow run main.nf -profile crg --ref=data/ref2/s*.ref --seqs=data/seqs2/s*.fa
+2017-06-27 12:43:05	2.6s	jovial_dijkstra	OK	07b25a4669726ce2ac9c8058307ac792	b32ce15c-9312-468a-bf6e-81859c1357ad	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:43:19	2.2s	goofy_curie	OK	07b25a4669726ce2ac9c8058307ac792	19599a19-9b3f-4900-ad63-6a573c24bf99	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:43:30	2.7s	agitated_colden	OK	07b25a4669726ce2ac9c8058307ac792	fd3d8a51-78b4-4568-b822-f8329f77b850	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:43:37	2s	prickly_borg	OK	07b25a4669726ce2ac9c8058307ac792	97f270c6-e45f-425a-a133-251924665e99	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:44:10	1.6s	happy_albattani	OK	07b25a4669726ce2ac9c8058307ac792	fe22a4d5-f035-48b7-8d10-c56657e15718	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:44:22	990ms	backstabbing_jepsen	OK	76a27652e8bca62510f62be740233699	b6b37b8c-9984-4bdb-a9ad-e3dc26236a52	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:44:29	1.8s	hopeful_minsky	OK	76a27652e8bca62510f62be740233699	8c7bad81-6d60-4485-afd4-f4a1ba6120dc	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:44:35	1.5s	suspicious_babbage	OK	76a27652e8bca62510f62be740233699	f845d53f-42b7-4a3e-9260-bdeff1e5ca70	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:44:44	1.4s	elegant_yalow	OK	76a27652e8bca62510f62be740233699	8747e7ba-baef-4cfc-a0b7-ddc3121fe5ce	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:44:51	2s	modest_cori	OK	76a27652e8bca62510f62be740233699	49ace725-1fc5-42d4-8d67-f15061942089	nextflow run main.nf -profile crg --ref=data/ref2/s*.ref --seqs=data/seqs2/s*.fa
+2017-06-27 12:45:52	2.4s	goofy_khorana	OK	76a27652e8bca62510f62be740233699	ca411476-0c41-49ce-ab63-6cd167b7c395	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:47:52	1.7s	cranky_babbage	OK	76a27652e8bca62510f62be740233699	6d2297b9-49a2-4fc1-bf76-c1ff43a2c860	nextflow run main.nf -profile crg --ref=data/ref2/seatoxin.ref --seqs=data/seqs2/seatoxin.fa
+2017-06-27 12:48:08	1.8s	thirsty_wing	OK	76a27652e8bca62510f62be740233699	74075b90-7d3e-4918-9fd2-ac48a5b3cab6	nextflow run main.nf -profile crg --ref=data/ref2/s*.ref --seqs=data/seqs2/s*.fa
+2017-06-27 12:48:25	2.9s	suspicious_sinoussi	OK	76a27652e8bca62510f62be740233699	5da3545e-0d15-4b17-8eee-660c89f38dc8	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 12:59:15	2.4s	dreamy_saha	OK	4e459eb891ca3da76b75bfead199679e	5c9896f6-68c7-428c-aa21-f359dc01c5b5	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
+2017-06-27 13:09:04	-	modest_brahmagupta	-	3abb0648a9c516f9979f2e33c7357457	9bde6b5c-3924-447f-9d01-584aeb1168ea	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa -bg
