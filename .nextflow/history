@@ -139,4 +139,26 @@
 2017-06-27 12:48:08	1.8s	thirsty_wing	OK	76a27652e8bca62510f62be740233699	74075b90-7d3e-4918-9fd2-ac48a5b3cab6	nextflow run main.nf -profile crg --ref=data/ref2/s*.ref --seqs=data/seqs2/s*.fa
 2017-06-27 12:48:25	2.9s	suspicious_sinoussi	OK	76a27652e8bca62510f62be740233699	5da3545e-0d15-4b17-8eee-660c89f38dc8	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
 2017-06-27 12:59:15	2.4s	dreamy_saha	OK	4e459eb891ca3da76b75bfead199679e	5c9896f6-68c7-428c-aa21-f359dc01c5b5	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa
-2017-06-27 13:09:04	-	modest_brahmagupta	-	3abb0648a9c516f9979f2e33c7357457	9bde6b5c-3924-447f-9d01-584aeb1168ea	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa -bg
+2017-06-27 13:09:04	6h 13m 5s	modest_brahmagupta	OK	3abb0648a9c516f9979f2e33c7357457	9bde6b5c-3924-447f-9d01-584aeb1168ea	nextflow run main.nf -profile crg --ref=data/ref2/*.ref --seqs=data/seqs2/*.fa -bg
+2017-08-31 12:33:10	17.5s	grave_yonath	ERR	269710f0c97ec06c40dee90ee4390fc6	0317c0be-7b33-4ea6-afa2-032020e6a05c	nextflow run main.nf
+2017-08-31 12:36:19	-	happy_bhabha	-	f7a5aa35b695e1de4e5d289b19c8cf5b	d34560be-93f1-4b27-9f7d-61873f040d54	nextflow run main.nf
+2017-08-31 12:37:21	-	dreamy_kimura	-	f7a5aa35b695e1de4e5d289b19c8cf5b	5c908a0b-ad29-48b7-ab78-4813801b8575	nextflow run main.nf
+2017-08-31 12:38:35	-	pedantic_fermat	-	1f4305639974cecf24c9da425ba7fd65	cd300cfd-b9e3-4cf4-a0be-9b70f08af95a	nextflow run main.nf
+2017-08-31 12:39:38	8.8s	deadly_albattani	ERR	dceae64ef822657f5197728c32a0aa5a	3d71441c-9e72-4d17-9e80-f328986fb82f	nextflow run main.nf
+2017-08-31 12:42:13	2.7s	cheesy_solvay	ERR	6fea00c81af8e9aa8daf7fb8e4373312	354a0d2f-bf50-48f5-841b-147279d957b4	nextflow run main.nf
+2017-08-31 12:42:32	-	romantic_murdock	-	a45862ea84800f034dcc2776a180afb7	89e879f2-9390-432b-b8eb-3891e72c222a	nextflow run main.nf
+2017-08-31 12:42:46	16.2s	big_sanger	ERR	d0f79b8eba4a8347f3bd8761b91793f8	69a3a17b-1bda-42d0-8ed5-efa9cc5678f3	nextflow run main.nf
+2017-08-31 12:45:38	8.5s	sleepy_kowalevski	ERR	d0f79b8eba4a8347f3bd8761b91793f8	ecb0ce71-1f30-4231-9241-0a3efd529bdb	nextflow run main.nf -with-docker
+2017-08-31 13:00:16	40s	pensive_torvalds	ERR	3a0cbeb92a47907246770420691ee295	4cb8f9ef-be05-46c8-b944-4bb01aca8585	nextflow run main.nf -with-docker
+2017-08-31 13:02:33	2m 22s	astonishing_fourier	ERR	2c0393a9d78c43e231df14c434cd721d	e4bc9207-ebf8-4f69-beec-ae6c900a2a74	nextflow run main.nf -with-docker
+2017-08-31 13:15:08	1m 52s	ecstatic_leavitt	OK	36739ef8584b117d3bfc42174f663895	3c77c03f-35ee-4915-8c59-843624a36a66	nextflow run main.nf -with-docker
+2017-08-31 13:21:40	4m 32s	high_hoover	OK	36739ef8584b117d3bfc42174f663895	d63c8e85-bd0c-4399-bd28-583262cb9899	nextflow run main.nf -with-singularity
+2017-08-31 13:27:37	2m 54s	cranky_curran	ERR	520c824a98b83b1a45bb126bc7559355	829e3e7b-8b99-4e0c-9b7f-5663321f5c2a	nextflow run main.nf -with-singularity
+2017-08-31 13:32:40	1m 57s	fervent_fourier	OK	2b0f7f0a03b92b2d6ec027d675d91d40	561c9570-15b1-439b-92af-4d92454db593	nextflow run main.nf -with-singularity
+2017-08-31 13:41:03	1m 12s	loving_kirch	ERR	a190d5c23fff54f0fd94811ac5f4a60a	8f07a946-a832-4794-87d7-f31c1c7c4bd9	nextflow run main.nf -with-singularity
+2017-08-31 13:44:24	1m 51s	cocky_lamarck	OK	0aaa263cf76480003622d77bdce2fe47	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity
+2017-08-31 13:50:11	7.8s	thirsty_nobel	ERR	0aaa263cf76480003622d77bdce2fe47	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --ref=data/ref/*.ref --seqs=data/seqs/*.fa --alignments=25 --replicates=10 -resume
+2017-08-31 13:50:41	22h 43m 24s	voluptuous_gilbert	OK	9444afd8b9a8a5f382bc6770010ad9f2	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --ref=data/ref/*.ref --seqs=data/seqs/*.fa --alignments=25 --replicates=10 -resume
+2017-09-01 14:47:32	9.1s	drunk_babbage	ERR	199586374e94d4e963a6076274dcf9f1	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --alignments=25 --replicates=10 -resume
+2017-09-01 14:47:46	3m 33s	fabulous_bhaskara	OK	199586374e94d4e963a6076274dcf9f1	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --alignments=25 --replicates=10 -resume
+2017-09-01 14:53:35	14h 10m 34s	awesome_watson	OK	080488092f6b8095f379cc790e4639f2	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --ref=data/ref/*.ref --seqs=data/seqs/*.fa --alignments=25 --replicates=10 -resume

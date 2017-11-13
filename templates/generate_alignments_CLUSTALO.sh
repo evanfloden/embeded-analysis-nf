@@ -1,1 +1,1 @@
-clustalo --infile=${size}.${rep}.fa --outfmt=fa --force -o ${size}.${rep}.afa
+clustalo --infile=${datasetID}.${size}.${rep}.fa --outfmt=fa --force -o ${datasetID}.${size}.${rep}.aln

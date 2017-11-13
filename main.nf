@@ -10,7 +10,8 @@ params.name             = "emebed-analysis-nf"
 params.ref              = "$baseDir/tutorial/seatoxin.ref"
 params.seqs             = "$baseDir/tutorial/seatoxin.fa"
 params.output           = "$baseDir/results/"
-params.alignments       = 50
+params.alignments       = 5
+params.replicates       = 3
 params.aligner          = "CLUSTALO"
 
 log.info "e m b e d e d  -  a n a l y s i s  ~  version 0.1"
@@ -49,7 +50,6 @@ Channel
 refs1
     .cross(seqs1)
     .map { item -> [item[0][0], item[0][1], item[1][1]] }
-    .view()
     .set { seqsAndRefs }
 
 /*
@@ -81,31 +81,33 @@ process calculate_seqs {
         set val(datasetID), val(number_seqs_per_alignment) into seqNumbers
 
     exec:
-    alignments = params.alignments as int
-    min = 1
-    seqFileText = seqs.text
-    def max = 0
-    seqFileText.eachLine { String line ->
-        if(line.startsWith('>')) {
-            max++ 
-        }   
-    }   
+//    alignments = params.alignments as int
+//    min = 1
+//    seqFileText = seqs.text
+//    def max = 0
+//    seqFileText.eachLine { String line ->
+//        if(line.startsWith('>')) {
+//            max++ 
+//       }   
+//    }   
     
     // Define linear function for scale
-    number_seqs_per_alignment = []
+//    number_seqs_per_alignment = []
     
     // Define the number of sequences in each alignment
-    number_seqs_per_alignment.add(0)
-    number_seqs_per_alignment.add(min)
-    for (x = 1; x < alignments-1; x++) {
-      k = (max-min)/(alignments-1)*x
-      l = k.intValue()
-      number_seqs_per_alignment.add(l)
-    } 
-    number_seqs_per_alignment.add(max)
+//    number_seqs_per_alignment.add(0)
+//    number_seqs_per_alignment.add(min)
+//    for (x = 1; x < alignments-1; x++) {
+//      k = (max-min)/(alignments-1)*x
+//      l = k.intValue()
+//      number_seqs_per_alignment.add(l)
+//    } 
+//    number_seqs_per_alignment.add(max)
 
+   number_seqs_per_alignment = [0,5,10,25,50,100,200,400,600,800,1000,1250,\
+                                1500,1750,2000,2500,3000,4000,5000,7500,\
+                                10000,15000,20000,50000,100000]
 }
-
 
 
 def transform = { 
@@ -119,13 +121,12 @@ def transform = {
 
 seqNumbers
     .flatMap(transform)
-    .view()
     .set {seqNumbersFlat}
 
 
 seqsAndRefs
     .cross(seqNumbersFlat)
-    .map { item -> [ item[1][0], item[1][1], item[0][1], item[0][2], item[1][1] ] }
+    .map { item -> [ item[1][0], item[1][1], item[0][1], item[0][2] ] }
     .set { seqsAndRefsAndNumbers }
 
 /**************************
@@ -135,38 +136,57 @@ seqsAndRefs
  */
 
 process generate_sequence_sets {
-    container "cbcrg/tcoffee"  
+
+    publishDir "${params.output}/sequence_sets/${datasetID}/", mode: 'copy';
     tag "${datasetID}_${size}_${rep}"
 
     input:
-        set val(datasetID), val(size), file(alnFile), file(seqs) from seqsAndRefsAndNumbers
-        each rep from (0..9)
+        set val(datasetID), val(size), file(references), file(sequences) from seqsAndRefsAndNumbers
+        each rep from (1..params.replicates)
 
     output:
-        set val(datasetID), val(size), val(rep), file ("${size}.${rep}.fa") into sequenceSets
+        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.fa") into sequenceSets
 
     script:
     """
-    grep '^>' ${seqs} | sort -R > headers.txt
+    # FORMAT A FASTA FILE CONTAINING ALL REF SEQUENCES
+    t_coffee -other_pg seq_reformat -in ${references} -output fasta_seq -out refs.tmp.fa
+
+    # FORMAT A FASTA FILE CONTAINING ALL OTHER SEQUENCES
+    esl-reformat fasta ${sequences} > seqs.tmp.fa
+
+    # CREATE FILE OF SEQ IDS (HEADERS), SORTED RANDOMLY
+    grep '^>' seqs.tmp.fa | sort -R > headers.txt
+
+    # SELECT FIRST ${size} HEADERS
     head -n ${size} headers.txt > headers.${size}.txt
-    sed 's/^.\\{1\\}//g' headers.${size}.txt > headers.${size}.x.txt
-    faSomeRecords ${seqs} headers.${size}.x.txt shuffled_seqs.fa
-    esl-reformat --informat afa fasta ${alnFile} > ref_seqs.fa
-    cat ref_seqs.fa > ${size}.${rep}.fa
-    cat shuffled_seqs.fa >> ${size}.${rep}.fa  
+    sed -i 's/^.\\{1\\}//g' headers.${size}.txt 
+
+    # SELECTS SEQS IN headers.${size}.txt
+    faSomeRecords ${sequences} headers.${size}.txt selected_seqs.fa
+
+    # COMBINE SELECTED SEQS AND REFS
+    cat selected_seqs.fa >> refs.tmp.fa 
+
+    # FORMAT AND SHUFFLE
+    t_coffee -other_pg seq_reformat \
+             -in refs.tmp.fa \
+             -output fasta_seq \
+             -out ${datasetID}.${size}.${rep}.fa \
+             -action +reorder random
     """
 }
 
 process generate_alignments {
-    container "cbcrg/benchfam_large_scale"
+
     tag "${datasetID}_${size}_${rep}"
-    publishDir "${params.output}/${aligner}/${datasetID}/alignments/${size}/", mode: 'copy';
+    publishDir "${params.output}/alignments/${datasetID}/", mode: 'copy';
     
     input:
-        set val(datasetID), val(size), val(rep), file ("${size}.${rep}.fa") from sequenceSets       
+        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.fa") from sequenceSets       
  
    output:
-        set val(datasetID), val(size), val(rep), file ("${size}.${rep}.afa") into completeAlignments
+        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.aln") into completeAlignments
     
     script:
     template "generate_alignments_${aligner}.sh"
@@ -186,7 +206,6 @@ refs2
 
 process evaluate_alignments {
 
-    container "cbcrg/tcoffee"
     tag "${dataset} ${size}"
 
     input:
@@ -200,33 +219,33 @@ process evaluate_alignments {
     script:
     """
     touch ${aligner}.${dataset}.${size}.sp
-    for i in {0..9};
+    for i in {1..${params.replicates}};
     do 
     t_coffee -other_pg aln_compare \
              -al1 ${refAln} \
-             -al2 ${size}.\$i.afa \
+             -al2 ${dataset}.${size}.\$i.aln \
             -compare_mode sp \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
             >> "${aligner}.${dataset}.${size}.sp"
     done
 
     touch ${aligner}.${dataset}.${size}.tc
-    for i in {0..9};
+    for i in {1..${params.replicates}};
     do
     t_coffee -other_pg aln_compare \
              -al1 ${refAln} \
-             -al2 ${size}.\$i.afa \
+             -al2 ${dataset}.${size}.\$i.aln \
             -compare_mode tc \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
             >> "${aligner}.${dataset}.${size}.tc"
     done
 
     touch ${aligner}.${dataset}.${size}.col
-    for i in {0..9};
+    for i in {1..${params.replicates}};
     do
     t_coffee -other_pg aln_compare \
              -al1 ${refAln} \
-             -al2 ${size}.\$i.afa \
+             -al2 ${dataset}.${size}.\$i.aln \
             -compare_mode column \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
             >> "${aligner}.${dataset}.${size}.col"
@@ -235,16 +254,17 @@ process evaluate_alignments {
    """
 }
 
+
 spScores
-    .collectFile(name:"spScores.csv", sort:{ it[0] }, newLine:true, storeDir: "$params.output" ) { 
+    .collectFile(name:"spScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) { 
         it[0]+"\t"+it[1]+"\t"+it[2].text }
 
 tcScores
-    .collectFile(name:"tcScores.csv", sort:{ it[0] }, newLine:true, storeDir: "$params.output" ) {
+    .collectFile(name:"tcScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) {
         it[0]+"\t"+it[1]+"\t"+it[2].text }
 
 colScores
-    .collectFile(name:"colScores.csv", sort:{ it[0] }, newLine:true, storeDir: "$params.output" ) {
+    .collectFile(name:"colScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) {
         it[0]+"\t"+it[1]+"\t"+it[2].text }
 
 /*
