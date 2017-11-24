@@ -162,3 +162,27 @@
 2017-09-01 14:47:32	9.1s	drunk_babbage	ERR	199586374e94d4e963a6076274dcf9f1	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --alignments=25 --replicates=10 -resume
 2017-09-01 14:47:46	3m 33s	fabulous_bhaskara	OK	199586374e94d4e963a6076274dcf9f1	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --alignments=25 --replicates=10 -resume
 2017-09-01 14:53:35	14h 10m 34s	awesome_watson	OK	080488092f6b8095f379cc790e4639f2	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity --ref=data/ref/*.ref --seqs=data/seqs/*.fa --alignments=25 --replicates=10 -resume
+2017-11-23 18:44:15	-	silly_stallman	-	7e4e96d3349bb963fd6cbbcdd7d4a4d2	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 18:45:25	-	cheesy_hawking	-	a68205d29eb4fef191e7f305fb1cdb88	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 18:45:45	-	stupefied_williams	-	413e0837cae64ad4689ab88210291b1b	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 18:46:50	-	marvelous_euclid	-	fb7681ce6c9d81dd84c03411ebd00b8c	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 18:47:51	-	big_noether	-	d9dc683905f160800f657fc885eab692	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 18:48:29	-	pedantic_snyder	-	65c7ece860e3a8309ebfd43b119a8669	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:12:38	-	romantic_bell	-	1d37478175dc60175f222a61a3f0fcef	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:14:48	-	loving_jepsen	-	abde2b9ae517a44612ef971b85fc5917	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:15:47	-	goofy_shaw	-	7e380fa97e0dcd685402336ee9bf2ed9	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:16:13	-	fabulous_ardinghelli	-	3c70a624147914474accc71ca71a3eda	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:16:52	-	goofy_spence	-	447782667acb3a90a425b3d57957780b	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:17:24	-	angry_galileo	-	d90ae78945fa9b4903ab0d02e023c558	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:17:54	-	clever_shannon	-	8873f828f57d2d59a1a1d8fa0b117b10	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:19:35	-	irreverent_williams	-	cf45df563af2a98d1e69406561e870bb	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:19:54	-	prickly_pike	-	5c31b3ef5fec9b6e0f068a7c1fd5ceac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:21:00	-	sick_becquerel	-	71170443d732d0ab19ae50068948380c	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:21:22	1m 38s	trusting_brattain	ERR	012f192a74b07f93bb2204314f8aec19	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:23:31	1m 4s	admiring_kalam	ERR	012f192a74b07f93bb2204314f8aec19	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-23 19:29:29	4m 22s	cheeky_gilbert	ERR	012f192a74b07f93bb2204314f8aec19	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-24 11:07:24	6m 15s	marvelous_tuckerman	ERR	12f09eb9b8bd94f25d45ca7385c6c25b	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-24 11:18:53	6m 28s	angry_einstein	ERR	12f09eb9b8bd94f25d45ca7385c6c25b	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-24 11:51:55	23m 57s	voluptuous_magritte	OK	3117f2c6b74c74d1ec7c980735aef69b	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-24 13:11:36	7s	romantic_pike	OK	c703b930a4e716fa3ab65022ceb88df3	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
+2017-11-24 13:22:59	-	elegant_curran	-	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume

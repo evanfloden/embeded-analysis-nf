@@ -3,16 +3,16 @@
  *
  * @authors
  * Evan Floden <evanfloden@gmail.com> 
- * Edgar
  */
 
 params.name             = "emebed-analysis-nf"
 params.ref              = "$baseDir/tutorial/seatoxin.ref"
 params.seqs             = "$baseDir/tutorial/seatoxin.fa"
 params.output           = "$baseDir/results/"
-params.alignments       = 5
-params.replicates       = 3
-params.aligner          = "CLUSTALO"
+params.reps             = 10
+params.align_method     = "CLUSTALO"
+params.tree_method      = "CLUSTALO"
+params.buckets          = '250,1000'
 
 log.info "e m b e d e d  -  a n a l y s i s  ~  version 0.1"
 log.info "====================================="
@@ -20,8 +20,10 @@ log.info "name                            : ${params.name}"
 log.info "test sequences (FA)             : ${params.seqs}"
 log.info "reference alignment (ALN)       : ${params.ref}"
 log.info "output (DIRECTORY)              : ${params.output}"
-log.info "number of alignments            : ${params.alignments}"
-log.info "aligner [CLUSTALO|MAFFT|UPP]    : ${params.aligner}"
+log.info "aligners [CLUSTALO|MAFFT]       : ${params.align_method}"
+log.info "tree methods                    : ${params.tree_method}"
+log.info "bucket sizes                    : ${params.buckets}"
+log.info "replicates                      : ${params.reps}"
 log.info "\n"
 
 
@@ -53,14 +55,6 @@ refs1
     .set { seqsAndRefs }
 
 /*
- * Select aligner to generate MSA:
- *
- * 'CLUSTALO' | 'MAFFT' |  'UPP'
- *
- */
-    aligner = params.aligner
-
-/*
  *
  **************************/
 
@@ -81,37 +75,14 @@ process calculate_seqs {
         set val(datasetID), val(number_seqs_per_alignment) into seqNumbers
 
     exec:
-//    alignments = params.alignments as int
-//    min = 1
-//    seqFileText = seqs.text
-//    def max = 0
-//    seqFileText.eachLine { String line ->
-//        if(line.startsWith('>')) {
-//            max++ 
-//       }   
-//    }   
-    
-    // Define linear function for scale
-//    number_seqs_per_alignment = []
-    
-    // Define the number of sequences in each alignment
-//    number_seqs_per_alignment.add(0)
-//    number_seqs_per_alignment.add(min)
-//    for (x = 1; x < alignments-1; x++) {
-//      k = (max-min)/(alignments-1)*x
-//      l = k.intValue()
-//      number_seqs_per_alignment.add(l)
-//    } 
-//    number_seqs_per_alignment.add(max)
-
-   number_seqs_per_alignment = [0,5,10,25,50,100,200,400,600,800,1000,1250,\
+    number_seqs_per_alignment = [0,5,10,25,50,100,200,400,600,800,1000,1250,\
                                 1500,1750,2000,2500,3000,4000,5000,7500,\
                                 10000,15000,20000,50000,100000]
+
 }
 
 
 def transform = { 
-
           def result = []
           def name = it[0]
           it[1].each { result << [name, it] }
@@ -122,7 +93,6 @@ def transform = {
 seqNumbers
     .flatMap(transform)
     .set {seqNumbersFlat}
-
 
 seqsAndRefs
     .cross(seqNumbersFlat)
@@ -138,14 +108,14 @@ seqsAndRefs
 process generate_sequence_sets {
 
     publishDir "${params.output}/sequence_sets/${datasetID}/", mode: 'copy';
-    tag "${datasetID}_${size}_${rep}"
+    tag "${datasetID} - ${size} - ${rep}"
 
     input:
         set val(datasetID), val(size), file(references), file(sequences) from seqsAndRefsAndNumbers
-        each rep from (1..params.replicates)
+        each rep from (1..params.reps)
 
     output:
-        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.fa") into sequenceSets
+        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.fa") into sequenceSets, sequenceSets2
 
     script:
     """
@@ -177,95 +147,141 @@ process generate_sequence_sets {
     """
 }
 
-process generate_alignments {
+process guide_trees {
+   tag "${datasetID} - ${tree_method} - ${size} - ${rep}"
+   publishDir "${params.output}/guide_trees", mode: 'copy', overwrite: true
 
-    tag "${datasetID}_${size}_${rep}"
+   input:
+     set val(datasetID),  
+         val(size), 
+         val(rep), 
+         file(sequenceSet) from sequenceSets2
+
+     each tree_method from params.tree_method.tokenize(',') 
+
+   output:
+     set val(datasetID), \
+         val(tree_method), 
+         val(size), \
+         val(rep), \
+         file("${datasetID}.${tree_method}.${size}.${rep}.dnd") \
+         into treesGenerated
+
+   script:
+     template "trees/generate_tree_${tree_method}.sh"
+}
+
+
+treesGenerated
+    .map { it -> [ [it[0],it[2],it[3]], it[0], it[1], it[2], it[3], it[4]] }
+    .set { treesMapped }
+
+sequenceSets
+    .map { it -> [ [it[0],it[1],it[2]], it[0], it[1], it[2], it[3] ] }
+    .set { sequencesMapped }
+
+treesMapped
+    .combine (sequencesMapped, by:0)
+    .map { it -> [it[1],it[2], it[5], it[3], it[4], it[9] ]}
+    .set {sequenceSetsWithTrees}
+
+process generate_dpa_alignments {
+
+    tag "${datasetID} - ${align_method} - ${tree_method} - DPA - ${bucket_size} - ${size} - ${rep}"
+
     publishDir "${params.output}/alignments/${datasetID}/", mode: 'copy';
     
     input:
-        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.fa") from sequenceSets       
+        set val(datasetID), val(tree_method), file(tree), val(size), val(rep), file (seqs2align) from sequenceSetsWithTrees     
+        
+        each bucket_size from params.buckets.tokenize(',')
  
+        each align_method from params.align_method.tokenize(',') 
+
    output:
-        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.aln") into completeAlignments
+        set val(datasetID), val(align_method), val(tree_method), val(bucket_size), val(size), val(rep), file ("${datasetID}.${align_method}.${tree_method}.${bucket_size}.${size}.${rep}.aln") into completeAlignments
     
     script:
-    template "generate_alignments_${aligner}.sh"
+    template "align/generate_alignments_dpa_${align_method}.sh"
 }   
 
 
+completeAlignments
+    .combine(refs2, by:0) 
+    .set { toEvaluate } 
+
+// [ val(datasetID), val(align_method), val(tree_method), val(size), val(rep), file (alignment), file(ref) ]
 
 
-refs2
-    .cross(completeAlignments) 
-    .map { item -> [ [item[0][0], item[1][1]], item[1][3], item[0][1]] }
-    .groupTuple()
-    .map { item -> [ item[0][0], item[0][1], item[1], item[2][0]] }
-    .set{ alignmentsGrouped }
+process evaluate {
 
-
-
-process evaluate_alignments {
-
-    tag "${dataset} ${size}"
+    tag "${id} - ${tree_method} - ${align_method} - ${size} - ${rep} - ${bucket_size}"
 
     input:
-    set val(dataset), val(size), file(alignments), file(refAln) from alignmentsGrouped
+      set val(id), \
+          val(align_method), \
+          val(tree_method), \
+          val(bucket_size),\
+          val(size), \
+          val(rep), \
+          file(test_alignment), \
+          file(ref_alignment) \
+          from toEvaluate
 
     output:
-    set val(dataset), val(size), file("${aligner}.${dataset}.${size}.sp") into spScores
-    set val(dataset), val(size), file("${aligner}.${dataset}.${size}.tc") into tcScores
-    set val(dataset), val(size), file("${aligner}.${dataset}.${size}.col") into colScores
+      set val(id), val(align_method), \
+          val(tree_method), val(bucket_size), \
+          val(size), val(rep), file("score.sp.tsv") \
+          into spScores
 
-    script:
-    """
-    touch ${aligner}.${dataset}.${size}.sp
-    for i in {1..${params.replicates}};
-    do 
-    t_coffee -other_pg aln_compare \
-             -al1 ${refAln} \
-             -al2 ${dataset}.${size}.\$i.aln \
+      set val(id), val(align_method), \
+          val(tree_method), val(bucket_size), \
+          val(size), val(rep), file("score.tc.tsv") \
+          into tcScores
+
+       set val(id), val(align_method), \
+          val(tree_method), val(bucket_size), \
+          val(size), val(rep),file("score.col.tsv") \
+          into colScores
+
+     script:
+     """
+       t_coffee -other_pg aln_compare \
+             -al1 ${ref_alignment} \
+             -al2 ${test_alignment} \
             -compare_mode sp \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
-            >> "${aligner}.${dataset}.${size}.sp"
-    done
+            >> "score.sp.tsv"
 
-    touch ${aligner}.${dataset}.${size}.tc
-    for i in {1..${params.replicates}};
-    do
-    t_coffee -other_pg aln_compare \
-             -al1 ${refAln} \
-             -al2 ${dataset}.${size}.\$i.aln \
+       t_coffee -other_pg aln_compare \
+             -al1 ${ref_alignment} \
+             -al2 ${test_alignment} \
             -compare_mode tc \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
-            >> "${aligner}.${dataset}.${size}.tc"
-    done
+            >> "score.tc.tsv"
 
-    touch ${aligner}.${dataset}.${size}.col
-    for i in {1..${params.replicates}};
-    do
-    t_coffee -other_pg aln_compare \
-             -al1 ${refAln} \
-             -al2 ${dataset}.${size}.\$i.aln \
+       t_coffee -other_pg aln_compare \
+             -al1 ${ref_alignment} \
+             -al2 ${test_alignment} \
             -compare_mode column \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
-            >> "${aligner}.${dataset}.${size}.col"
-    done
-
-   """
+            >> "score.col.tsv"
+    """
 }
+
 
 
 spScores
     .collectFile(name:"spScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) { 
-        it[0]+"\t"+it[1]+"\t"+it[2].text }
+        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6].text }
 
 tcScores
     .collectFile(name:"tcScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) {
-        it[0]+"\t"+it[1]+"\t"+it[2].text }
+        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6].text }
 
 colScores
     .collectFile(name:"colScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) {
-        it[0]+"\t"+it[1]+"\t"+it[2].text }
+        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6].text }
 
 /*
  *
