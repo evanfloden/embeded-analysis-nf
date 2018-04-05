@@ -186,3 +186,9 @@
 2017-11-24 11:51:55	23m 57s	voluptuous_magritte	OK	3117f2c6b74c74d1ec7c980735aef69b	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
 2017-11-24 13:11:36	7s	romantic_pike	OK	c703b930a4e716fa3ab65022ceb88df3	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf -with-singularity -resume
 2017-11-24 13:22:59	-	elegant_curran	-	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume
+2017-11-27 09:46:06	-	boring_jones	-	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume -bg
+2017-11-27 09:46:38	-	curious_goldberg	-	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume -bg
+2017-11-27 09:52:45	-	stupefied_ptolemy	-	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume -bg
+2017-11-28 09:05:13	-	backstabbing_yalow	-	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume -bg -with-report
+2017-11-29 14:43:06	1d 21h 20s	ecstatic_goldstine	ERR	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume -bg -with-report
+2017-12-01 11:56:45	5h 52m 34s	ridiculous_wright	OK	9f2b1b6a556f8c354ef2862388f3baac	12761dfc-8b76-4668-b851-f71eaf3a8e6d	nextflow run main.nf --seqs=data/seqs/*.fa --ref=data/ref/*.ref -with-singularity -resume -bg -with-report -with-trace
