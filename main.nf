@@ -1,3 +1,5 @@
+#!/usr/bin/env nextflow
+
 /* 
  * Main embeded analysis pipeline script
  *
