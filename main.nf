@@ -8,26 +8,34 @@
  */
 
 params.name             = "emebed-analysis-nf"
-params.ref              = "$baseDir/tutorial/seatoxin.ref"
-params.seqs             = "$baseDir/tutorial/seatoxin.fa"
+params.ref              = "$baseDir/tutorial/refs/seatoxin.ref"
+params.seqs             = "$baseDir/tutorial/seqs/seatoxin.*.*.fa"
 params.output           = "$baseDir/results/"
-params.reps             = 10
-params.align_method     = "CLUSTALO"
-params.tree_method      = "CLUSTALO"
+params.default_methods  = "CLUSTALO"
+params.std_methods      = "CLUSTALO_STD"
+params.dpa_methods      = "CLUSTALO_DPA"
+params.tree_methods     = "CLUSTALO"
 params.buckets          = '250,1000'
 
-log.info "e m b e d e d  -  a n a l y s i s  ~  version 0.1"
+// create dpa alignments [BOOL]
+params.dpa_align = true
+
+// create standard alignments [BOOL]
+params.std_align = true
+
+// create default alignments [BOOL]
+params.default_align = true
+
+log.info "e m b e d e d  -  a n a l y s i s  ~  version 0.2"
 log.info "====================================="
 log.info "name                            : ${params.name}"
-log.info "test sequences (FA)             : ${params.seqs}"
+log.info "sequences (FA)                  : ${params.seqs}"
 log.info "reference alignment (ALN)       : ${params.ref}"
 log.info "output (DIRECTORY)              : ${params.output}"
-log.info "aligners [CLUSTALO|MAFFT]       : ${params.align_method}"
-log.info "tree methods                    : ${params.tree_method}"
+log.info "aligners [CLUSTALO|MAFFT]       : ${params.default_methods} | ${params.std_methods} | ${params.dpa_methods}"
+log.info "tree methods                    : ${params.tree_methods}"
 log.info "bucket sizes                    : ${params.buckets}"
-log.info "replicates                      : ${params.reps}"
 log.info "\n"
-
 
 /**************************
  * 
@@ -41,249 +49,288 @@ log.info "\n"
 
 Channel
     .fromPath( params.ref )
-    .ifEmpty { error "Cannot find any input sequence files matching: ${params.ref}" }
+    .ifEmpty { error "Cannot find any input reference files matching: ${params.ref}" }
     .map { file -> tuple( file.baseName, file ) }
     .into { refs1; refs2 }
 
 Channel
     .fromPath( params.seqs )
-    .ifEmpty { error "Cannot find any input seeds files matching: ${params.seeds}" }
+    .ifEmpty { error "Cannot find any input files matching: ${params.seqs}" }
     .map { file -> tuple( file.baseName, file ) }
-    .into { seqs1; seqs2 }
-
+    .map { filename,  file -> def (dataset, size, replicate) = filename.tokenize('.'); [dataset, size, replicate, file] } 
+    .view()
+    .into { seqs1; seqs2; seqs3; seqs4}
+ 
 refs1
     .cross(seqs1)
-    .map { item -> [item[0][0], item[0][1], item[1][1]] }
+                    //   datset    size       replicate    refFile    combinedSeqFile
+    .map { item -> [item[0][0], item[1][1], item[1][2], item[0][1], item[1][1]] }
     .set { seqsAndRefs }
+
+tree_methods = params.tree_methods
 
 /*
  *
  **************************/
 
 
-/**************************
- *
- *   C A L C U L A T E   S E Q  N U M B E R S  F O R  
- *   E A C H  D A T A S E T / A L I G N M E N T
- *
- */
-
-process calculate_seqs {
-
-    input:
-        set val(datasetID), val(seqs) from seqs2
-
-    output:
-        set val(datasetID), val(number_seqs_per_alignment) into seqNumbers
-
-    exec:
-    number_seqs_per_alignment = [0,5,10,25,50,100,200,400,600,800,1000,1250,\
-                                1500,1750,2000,2500,3000,4000,5000,7500,\
-                                10000,15000,20000,50000,100000]
-
-}
-
-
-def transform = { 
-          def result = []
-          def name = it[0]
-          it[1].each { result << [name, it] }
-          return result
- }
-
-
-seqNumbers
-    .flatMap(transform)
-    .set {seqNumbersFlat}
-
-seqsAndRefs
-    .cross(seqNumbersFlat)
-    .map { item -> [ item[1][0], item[1][1], item[0][1], item[0][2] ] }
-    .set { seqsAndRefsAndNumbers }
-
-/**************************
- *
- *   G E N E R A T E   S E Q U E N C E   S E T S  T O   A L I G N
- *
- */
-
-process generate_sequence_sets {
-
-    publishDir "${params.output}/sequence_sets/${datasetID}/", mode: 'copy';
-    tag "${datasetID} - ${size} - ${rep}"
-
-    input:
-        set val(datasetID), val(size), file(references), file(sequences) from seqsAndRefsAndNumbers
-        each rep from (1..params.reps)
-
-    output:
-        set val(datasetID), val(size), val(rep), file ("${datasetID}.${size}.${rep}.fa") into sequenceSets, sequenceSets2
-
-    script:
-    """
-    # FORMAT A FASTA FILE CONTAINING ALL REF SEQUENCES
-    t_coffee -other_pg seq_reformat -in ${references} -output fasta_seq -out refs.tmp.fa
-
-    # FORMAT A FASTA FILE CONTAINING ALL OTHER SEQUENCES
-    esl-reformat fasta ${sequences} > seqs.tmp.fa
-
-    # CREATE FILE OF SEQ IDS (HEADERS), SORTED RANDOMLY
-    grep '^>' seqs.tmp.fa | sort -R > headers.txt
-
-    # SELECT FIRST ${size} HEADERS
-    head -n ${size} headers.txt > headers.${size}.txt
-    sed -i 's/^.\\{1\\}//g' headers.${size}.txt 
-
-    # SELECTS SEQS IN headers.${size}.txt
-    faSomeRecords ${sequences} headers.${size}.txt selected_seqs.fa
-
-    # COMBINE SELECTED SEQS AND REFS
-    cat selected_seqs.fa >> refs.tmp.fa 
-
-    # FORMAT AND SHUFFLE
-    t_coffee -other_pg seq_reformat \
-             -in refs.tmp.fa \
-             -output fasta_seq \
-             -out ${datasetID}.${size}.${rep}.fa \
-             -action +reorder random
-    """
-}
-
 process guide_trees {
-   tag "${datasetID} - ${tree_method} - ${size} - ${rep}"
+   tag "${id}.${tree_method}.${size}.${rep}"
    publishDir "${params.output}/guide_trees", mode: 'copy', overwrite: true
 
    input:
-     set val(datasetID),  
-         val(size), 
-         val(rep), 
-         file(sequenceSet) from sequenceSets2
+     set val(id),   \
+         val(size), \
+         val(rep),  \
+         file(seqs) \
+         from seqs2
 
-     each tree_method from params.tree_method.tokenize(',') 
+     each tree_method from tree_methods.tokenize(',')
 
    output:
-     set val(datasetID), \
-         val(tree_method), 
-         val(size), \
-         val(rep), \
-         file("${datasetID}.${tree_method}.${size}.${rep}.dnd") \
+     set val(id), 
+         val(size),
+         val(rep),
+         val(tree_method),
+         file("${id}.${tree_method}.${size}.${rep}.dnd") \
          into treesGenerated
 
+   when:
+     params.std_align || params.dpa_align
+
    script:
-     template "trees/generate_tree_${tree_method}.sh"
+     template "tree/generate_tree_${tree_method}.sh"
 }
 
 
+
 treesGenerated
-    .map { it -> [ [it[0],it[2],it[3]], it[0], it[1], it[2], it[3], it[4]] }
+    //                [id  size,  rep],   id,  size,    rep, treeMethod, treeFile
+    .map { it -> [ [it[0],it[1],it[2]], it[0], it[1], it[2], it[3], it[4]] }
     .set { treesMapped }
 
-sequenceSets
+seqs3
     .map { it -> [ [it[0],it[1],it[2]], it[0], it[1], it[2], it[3] ] }
     .set { sequencesMapped }
 
 treesMapped
     .combine (sequencesMapped, by:0)
-    .map { it -> [it[1],it[2], it[5], it[3], it[4], it[9] ]}
-    .set {sequenceSetsWithTrees}
+    .map { it -> [it[1], it[2], it[3], it[4], it[5], it[9] ]}
+    .into {sequenceSetsWithTreesForDPA;sequenceSetsWithTreesForSTD}
 
-process generate_dpa_alignments {
 
-    tag "${datasetID} - ${align_method} - ${tree_method} - DPA - ${bucket_size} - ${size} - ${rep}"
 
-    publishDir "${params.output}/alignments/${datasetID}/", mode: 'copy';
-    
+process std_alignment {
+
+    tag "${id}.${size}.${rep}.${align_method}.STD.NA.${tree_method}"
+    publishDir "${params.output}/alignments", mode: 'copy', overwrite: true
+
+    input: 
+      set val(id),         \
+          val(size),       \
+          val(rep),        \
+          val(tree_method),\
+          file(guide_tree),\
+          file(seqs)       \
+          from sequenceSetsWithTreesForSTD
+
+      each align_method from params.std_methods.tokenize(',')
+
+    when:
+      params.std_align
+
+    output:
+      set val(id), 
+          val(size),
+          val(rep),
+          val(align_method),
+          val(tree_method), 
+          val("std_align"), 
+          val("NA"), 
+          file("${id}.${size}.${rep}.std.NA.${align_method}.with.${tree_method}.tree.aln") \
+      into std_alignments
+
+     script:
+       template "std_align/std_align_${align_method}.sh"
+}
+
+
+process dpa_alignment {
+
+    tag "${id}.${size}.${rep}.${align_method}.DPA.${bucket_size}.${tree_method}"
+    publishDir "${params.output}/alignments", mode: 'copy', overwrite: true
+
     input:
-        set val(datasetID), val(tree_method), file(tree), val(size), val(rep), file (seqs2align) from sequenceSetsWithTrees     
-        
-        each bucket_size from params.buckets.tokenize(',')
- 
-        each align_method from params.align_method.tokenize(',') 
+      set val(id),         \
+          val(size),       \
+          val(rep),        \
+          val(tree_method),\
+          file(guide_tree),\
+          file(seqs)       \
+          from sequenceSetsWithTreesForDPA
 
-   output:
-        set val(datasetID), val(align_method), val(tree_method), val(bucket_size), val(size), val(rep), file ("${datasetID}.${align_method}.${tree_method}.${bucket_size}.${size}.${rep}.aln") into completeAlignments
-    
+      each bucket_size from params.buckets.tokenize(',')
+
+      each align_method from params.dpa_methods.tokenize(',')
+
+    output:
+      set val(id),
+          val(size),
+          val(rep),
+          val("${align_method}"), \
+          val(tree_method), \
+          val("dpa_align"), \
+          val(bucket_size), \
+          file("${id}.${size}.${rep}.dpa.${bucket_size}.${align_method}.with.${tree_method}.tree.aln") \
+          into dpa_alignments
+
+    when:
+      params.dpa_align
+
     script:
-    template "align/generate_alignments_dpa_${align_method}.sh"
-}   
+       template "dpa_align/dpa_align_${align_method}.sh"
+}
 
 
-completeAlignments
+
+process default_alignment {
+
+    tag "${id}.${size}.${rep}.${align_method}.default.NA.default" 
+   publishDir "${params.output}/alignments", mode: 'copy', overwrite: true
+
+    input:
+      set val(id),   \
+          val(size), \
+          val(rep),  \
+          file(seqs) \
+          from seqs4
+
+      each align_method from params.default_methods.tokenize(',')
+
+    when:
+      params.default_align
+
+    output:
+      set val(id), 
+          val(size),
+          val(rep),
+          val("${align_method}"), \
+          val("default"), \
+          val("default_align"), \
+          val("NA"), \
+          file("${id}.${size}.${rep}.default.NA.${align_method}.with.default.tree.aln") \
+          into default_alignments
+
+     script:
+       template "default_align/default_align_${align_method}.sh"
+}
+
+
+
+std_alignments
+  .mix ( dpa_alignments )
+  .mix (default_alignments )
+  .set { all_alignments }
+
+all_alignments
     .combine(refs2, by:0) 
     .set { toEvaluate } 
 
-// [ val(datasetID), val(align_method), val(tree_method), val(size), val(rep), file (alignment), file(ref) ]
+// [ val(id), 
+//   val(size), 
+//   val(rep),
+//   val(align_method),
+//   val(tree_method), 
+//   val(align_type),
+//   val(bucket_size),
+//   file (alignment), 
+//   file(reference) ]
 
 
 process evaluate {
 
-    tag "${id} - ${tree_method} - ${align_method} - ${size} - ${rep} - ${bucket_size}"
+    tag "${id}.${size}.${rep}.${align_method}.${align_type}.${bucket_size}.${tree_method}"
 
     input:
-      set val(id), \
-          val(align_method), \
-          val(tree_method), \
-          val(bucket_size),\
-          val(size), \
-          val(rep), \
-          file(test_alignment), \
-          file(ref_alignment) \
+      set val(id), 
+          val(size),              \
+          val(rep),               \
+          val(align_method),      \
+          val(tree_method),       \
+          val(align_type),        \
+          val(bucket_size),       \
+          file (test_alignment),  \
+          file(ref_alignment)     \
           from toEvaluate
 
     output:
-      set val(id), val(align_method), \
-          val(tree_method), val(bucket_size), \
-          val(size), val(rep), file("score.sp.tsv") \
+      set val(id),
+          val(size),
+          val(rep), 
+          val(align_method),
+          val(align_type),
+          val(bucket_size),
+          val(tree_method),
+          file("score.sp.tsv") \
           into spScores
 
-      set val(id), val(align_method), \
-          val(tree_method), val(bucket_size), \
-          val(size), val(rep), file("score.tc.tsv") \
+      set val(id), 
+          val(size),
+          val(rep),
+          val(align_method),
+          val(align_type),
+          val(bucket_size),
+          val(tree_method),
+          file("score.tc.tsv") \
           into tcScores
 
-       set val(id), val(align_method), \
-          val(tree_method), val(bucket_size), \
-          val(size), val(rep),file("score.col.tsv") \
+      set val(id), 
+          val(size),
+          val(rep),
+          val(align_method),
+          val(align_type),
+          val(bucket_size),
+          val(tree_method),
+          file("score.col.tsv") \
           into colScores
 
      script:
      """
        t_coffee -other_pg aln_compare \
-             -al1 ${ref_alignment} \
-             -al2 ${test_alignment} \
-            -compare_mode sp \
+                -al1 ${ref_alignment} \
+                -al2 ${test_alignment} \
+                -compare_mode sp \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
             >> "score.sp.tsv"
 
        t_coffee -other_pg aln_compare \
-             -al1 ${ref_alignment} \
-             -al2 ${test_alignment} \
-            -compare_mode tc \
+                -al1 ${ref_alignment} \
+                -al2 ${test_alignment} \
+                -compare_mode tc \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
             >> "score.tc.tsv"
 
        t_coffee -other_pg aln_compare \
-             -al1 ${ref_alignment} \
-             -al2 ${test_alignment} \
-            -compare_mode column \
+                -al1 ${ref_alignment} \
+                -al2 ${test_alignment} \
+                -compare_mode column \
             | grep -v "seq1" |grep -v '*' | awk '{ print \$4}' ORS="\t" \
             >> "score.col.tsv"
     """
 }
 
 
-
 spScores
     .collectFile(name:"spScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) { 
-        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6].text }
+        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6]+"\t"+it[7].text }
 
 tcScores
     .collectFile(name:"tcScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) {
-        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6].text }
+        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6]+"\t"+it[7].text }
 
 colScores
     .collectFile(name:"colScores.${workflow.runName}.csv", newLine:true, storeDir: "$params.output/scores" ) {
-        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6].text }
+        it[0]+"\t"+it[1]+"\t"+it[2]+"\t"+it[3]+"\t"+it[4]+"\t"+it[5]+"\t"+it[6]+"\t"+it[7].text }
 
 /*
  *
